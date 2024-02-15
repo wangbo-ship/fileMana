@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/index.css' />
+    <style>
+      td img{
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="myStuMana">
+      <h1>EXPRESS操作MONGODB<br/>增删改查上传文件</h1>
+      <div>
+        <div>用户名:<input id="username"/></div>
+        <div>密码:<input type="password" id="password"/></div>
+        <div>年龄:<input type="number" id="age"/></div>
+        <div><button id="register">注册</button></div>
+        <div></div>
+      </div>
+      <hr>
+      <div>
+        <button id="updater">修改</button>
+        <button id="deleter">删除</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <td>id</td>
+            <td>用户名</td>
+            <td>密码</td>
+            <td>年龄</td>
+            <td>头像</td>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+      <button id="exiter">退出</button>
+      <button id="toupload" onclick="location.href='/upload'">上传头像</button>
+    </div>
+    <script>
+      var register = document.querySelector('#register')
+      var updater = document.querySelector('#updater')
+      var deleter = document.querySelector('#deleter')
+      var exiter = document.querySelector('#exiter')
+
+      var username = document.querySelector('#username')
+      var password = document.querySelector('#password')
+      var age = document.querySelector('#age')
+
+      //获取数据库列表
+      fetch("/api/user",{
+        method:'GET'
+      }).then(res=>res.json()).then(res=>{
+        console.log(res)
+        if(res.ok===0){
+          location.href='/login'
+        }
+        var tbody = document.querySelector("tbody")
+        tbody.innerHTML = res.map(item=>`
+          <tr>
+            <td>${item._id}</td>
+            <td>${item.username}</td>
+            <td>${item.password}</td>
+            <td>${item.age}</td>
+            <td><img src="${item.avatar}"/></td>
+          </tr>
+        `).join("")
+      })
+
+      //添加请求
+      register.onclick =()=>{
+        console.log(username.value,password.value,age.value)
+        fetch("/api/user",{
+          method:"POST",
+          body:JSON.stringify({
+            username:username.value,
+            password:password.value,
+            age:age.value
+          }),
+          headers:{
+            "Content-Type":"application/json"
+          }
+        }).then(res=>res.json()).then(res=>{
+          console.log(res)
+          if(res.ok===0){
+            location.href='/login'
+          }
+        })
+      }
+
+      //修改请求
+      updater.onclick =()=>{
+        fetch('/api/user/65c470a90f05c203880c9ef1',{
+          method:"PUT",
+          body:JSON.stringify({
+            username:"xxggg",
+            password:"xg",
+            age:100
+          }),
+          headers:{
+            "Content-Type":"application/json"
+          }
+        }).then(res=>res.json()).then(res=>{
+          console.log(res)
+          if(res.ok===0){
+            location.href='/login'
+          }
+        })
+      }
+
+      //删除请求
+      deleter.onclick=()=>{
+        fetch("/api/user/65c470ac0f05c203880c9ef3",{
+          method:'DELETE'
+        }).then(res=>res.json()).then(
+          res=>{
+            console.log(res)
+            if(res.ok===0){
+              location.href='/login'
+            }
+          }
+        )
+      }
+
+      //退出登录
+      exiter.onclick=()=>{
+        fetch("/api/logout",{
+          method:'POST'
+        }).then(res=>res.json()).then(res=>{
+          if(res.ok===1){
+            location.href='/login'
+          }
+        })
+      }
+    </script>
+  </body>
+</html>
